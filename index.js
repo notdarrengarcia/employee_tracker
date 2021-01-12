@@ -1,14 +1,14 @@
 // Import the mysql package
-const mysql = require('mysql2');
+const mysql = require('mysql');
 const express = require("express");
 const inquirer = require("inquirer");
-const cTable = require("console.table");
-const { viewDepartments } = require("./viewDepartments");
+// const cTable = require("console.table");
+// const db = require("/db");
 
 
 
 // establishing the connection between the sql and the js file
-const connection = mysql2.createConnection({
+const connection = mysql.createConnection({
     host: 'localhost',
     port: 3306,
     user: 'root',
@@ -24,11 +24,23 @@ connection.connect(async (err) => {
 });
 
 
+// function viewDepartments() {
+//     console.log("departments")
+//     connection.query("SELECT employee.first_name, employee.last_name, role.title AS title FROM employee JOIN role ON employee.role_id = role.id;",
+//         function (err, res) {
+//             if (err) throw err;
+//             console.table(res);
+//             init();
+//         })
+// }
+
+
+
 // this is to initialize the whole operation and app
 function init() {
     inquirer.prompt({
         type: "list",
-        name: "start",
+        name: "val",
         message: "What would you like to do?",
         choices: [
             "View All Employees", 
@@ -46,7 +58,7 @@ function init() {
     })
 
     .then(function (val) {
-        switch (val.choice) {
+        switch (val) {
             
             case "View All Employees":
                 displayEmployees();
@@ -101,8 +113,8 @@ function init() {
             break;
         }
     })
-}exports.init = init;
-;
+}
+
 
 
 //view employees and manage the functions and roles of each one
@@ -125,6 +137,7 @@ function viewRoles() {
 }
 
 function viewDepartments() {
+    console.log("departments")
     connection.query("SELECT employee.first_name, employee.last_name, role.title AS title FROM employee JOIN role ON employee.role_id = role.id;",
         function (err, res) {
             if (err) throw err;
@@ -241,3 +254,56 @@ function updateEmployee() {
 
 }
 
+function addRole() {
+    connection.query("SELECT role.title AS Title, role.salary AS Salary FROM role", function(err, res) {
+        inquirer.prompt([
+            {
+                type: "input",
+                name: "Title",
+                message: "What is the title?"
+            },
+            {
+                type: "input",
+                message: "What is the annual Salary?",
+                name: "Salary"
+            },
+        ]).then(function(res) {
+            connection.query(
+                "INSERT INTO role SET ?",
+                {
+                    title: res.Title,
+                    salary: res.Salary,
+                },
+                function(err) {
+                    if (err) throw err
+                    console.table(res);
+                    init();
+                }
+            )
+        });
+    });
+}
+
+
+
+function addDepartment() {
+    inquirer.prompt([
+        {
+            type: "input",
+            message: "What department would you like to add to the database?",
+            name: "addDepartment"
+        },
+    ]).then(function(res) {
+        var query = connection.query(
+            "INSERT INTO department SET ?",
+            {
+                name: res.name
+            },
+            function(err) {
+                if (err) throw err
+                console.table(res);
+                init();
+            }
+        )
+    })
+}
