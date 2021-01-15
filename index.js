@@ -40,7 +40,7 @@ connection.connect(async (err) => {
 function init() {
     inquirer.prompt({
         type: "list",
-        name: "val",
+        name: "choice",
         message: "What would you like to do?",
         choices: [
             "View All Employees", 
@@ -58,7 +58,7 @@ function init() {
     })
 
     .then(function (val) {
-        switch (val) {
+        switch (val.choice) {
             
             case "View All Employees":
                 displayEmployees();
